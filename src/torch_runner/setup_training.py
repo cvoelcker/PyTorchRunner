@@ -6,7 +6,7 @@ from config_parser.config_parser import ConfigGenerator
 
 from torch_runner.train.train import AbstractTrainer
 from torch_runner.util.torch_utils import get_optimizer_from_str
-from torch_runner.data.base import AbstractDataSet
+from torch_runner.data.base import BasicDataSet
 
 
 def setup_config(file_location: str, argv) -> Tuple[Any, ConfigGenerator]:
@@ -31,11 +31,11 @@ def setup_trainer(trainer_class: Type[AbstractTrainer], model: torch.nn.Module, 
     trainer.register_optimizer(optimizer, training_config.lr, **training_config.optimizer_config._asdict())
 
 
-def setup_train_dataloader(trainer, dataset: AbstractDataSet):
+def setup_train_dataloader(trainer, dataset: BasicDataSet):
     dataloader = torch.utils.data.dataloader.DataLoader(dataset)
     trainer.register_train_dataloader(dataloader)
 
 
-def setup_test_dataloader(trainer, dataset: AbstractDataSet):
+def setup_test_dataloader(trainer, dataset: BasicDataSet):
     dataloader = torch.utils.data.dataloader.DataLoader(dataset)
     trainer.register_test_dataloader(dataloader)
