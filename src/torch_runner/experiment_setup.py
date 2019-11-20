@@ -136,7 +136,7 @@ def setup_experiment(config, config_object: ConfigGenerator, debug: bool = False
 
 def get_model(config, model_class: Type[torch.nn.Module]):
     model_config = config.MODULE
-    model = model_class(model_config._asdict())
+    model = model_class(**model_config._asdict())
     ex = config.EXPERIMENT
     if ex.load_run:
         path = get_run_path(ex.experiment_dir, ex.run_name, ex.run_number)

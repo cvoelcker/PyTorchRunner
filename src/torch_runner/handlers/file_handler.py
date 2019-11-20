@@ -5,7 +5,7 @@ from typing import Optional, List, Tuple, Any, Callable, Dict, BinaryIO
 
 import torch
 
-from .base import AbstractHandler
+from .base import AbstractHandler, AbstractEpochHandler, AbstractStepHandler
 
 
 def wrap_file_open(data: Dict, file_name: str, function: Callable[[Any, BinaryIO], None]):
@@ -25,7 +25,7 @@ class FileHandler(AbstractHandler):
         if method == 'pickle':
             return lambda data, file_name: wrap_file_open(data, file_name, pickle.dump)
         if method == 'torch':
-            return lambda data, file_name: torch.save(data, file_name)
+            return torch.save
     
     def __init__(self, log_dir: str, compression_method:str='pickle', log_name_list: Optional[List[str]]=None):
         if compression_method not in FileHandler.SUPPORTED:
@@ -50,5 +50,27 @@ class FileHandler(AbstractHandler):
         for key in data:
             if (self.log_name_list is not None) and (key not in self.log_name_list):
                 continue
-            full_path = os.path.join(self.log_dir, key + '.save')
+            full_path = os.path.join(self.log_dir, f'{key}_{self.step}.save')
             self.saving(data[key], full_path)
+
+
+class ModelSavingHandler(FileHandler):
+    def __init__(self, log_dir: str):
+        super().__init__(log_dir, compression_method='torch', log_name_list=['model_state'])
+
+
+class NStepFileHandler(FileHandler, AbstractStepHandler):
+    def __init__(self, n: int, log_dir: str, compression_method:str='pickle', log_name_list: Optional[List[str]]=None):
+        super().__init__(log_dir, compression_method, log_name_list)
+        self.n = n
+
+    def notify(self, data):
+        if self.step > 0 and self.step % self.n == 0:
+            super().notify(data)
+        self.step += 1 if 'step' not in data else data['step']
+
+
+class EpochCheckpointHandler(ModelSavingHandler, AbstractEpochHandler): pass
+
+
+class EpochFileHandler(FileHandler, AbstractEpochHandler): pass

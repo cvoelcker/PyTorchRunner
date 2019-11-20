@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Dict, Optional, List, Type, Any
 
+from tqdm import tqdm
 import torch
 from torch.utils.data.dataloader import DataLoader
 from torch.optim.optimizer import Optimizer
@@ -56,17 +57,17 @@ class AbstractTrainer(ABC):
         else:
             self.optimizer = optimizer(self.model.parameters(), lr=lr, **optimizer_params) #type: ignore
 
-    def add_train_dataloader(self, dataloader: DataLoader, data_type: DataLoaderType):
+    def add_train_dataloader(self, dataloader: DataLoader):
         self.train_dataloader = dataloader
     
-    def add_test_dataloader(self, dataloader: DataLoader, data_type: DataLoaderType):
+    def add_test_dataloader(self, dataloader: DataLoader):
         self.test_dataloader = dataloader
 
     def train(self, epochs: int, train_only: bool = False):
         training_info_dict: Dict[str, Any] = {}
-        for e in range(epochs):
+        for e in tqdm(range(epochs)):
             epoch_info_dict: Dict[str, Any] = {}
-            for d in self.train_dataloader:
+            for d in tqdm(self.train_dataloader):
                 data = self.train_step(d)
                 self.notify_step_handlers(data)
                 epoch_info_dict = self.append_epoch_info_dict(epoch_info_dict, data) 
@@ -77,7 +78,7 @@ class AbstractTrainer(ABC):
                     self.notify_step_handlers(data)
                     epoch_info_dict = self.append_epoch_info_dict(epoch_info_dict, data) 
                     training_info_dict = self.append_training_info_dict(training_info_dict, data)
-            self.compile_epoch_info_dict(epoch_info_dict)
+            epoch_info_dict = self.compile_epoch_info_dict(epoch_info_dict)
             self.notify_epoch_handlers(epoch_info_dict)
         training_info_dict = self.compile_training_info_dict(training_info_dict)
         self.notify_train_handlers(training_info_dict)
