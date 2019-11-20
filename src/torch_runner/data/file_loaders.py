@@ -19,7 +19,7 @@ class DataSource(ABC):
 
 
 class DirectoryLoader(DataSource):
-    def __init__(self, directory: str = '', compression_type: str = '', **kwargs):
+    def __init__(self, directory: str = '', compression_type: str = 'pickle', **kwargs):
         self.directory = directory
         self.filenames = os.listdir(directory)
         self.compression_type = compression_type
@@ -32,11 +32,11 @@ class DirectoryLoader(DataSource):
             if compression_type == 'gzip':
                 with gzip.open(imgpath, 'rb') as f:
                     img = dill.load(f)
-                    dataset.append(img)
+                dataset.append(img)
             elif compression_type == 'pickle':
                 with open(imgpath, 'rb') as f:
                     img = pickle.load(f)
-                    dataset.append(img)
+                dataset.append(img)
         return dataset
 
 

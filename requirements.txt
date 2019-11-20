@@ -2,7 +2,11 @@ torch
 torchvision
 numpy
 pandas
+scipy
 matplotlib
-tensorboard
+tensorflow==1.14
+tensorboardX
 PyConfigMaker
 pillow
+dill
+mypy

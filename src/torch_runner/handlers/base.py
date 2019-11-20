@@ -3,6 +3,7 @@ from enum import Enum
 
 
 class HandlerType(Enum):
+    INVALID = -1
     BEFORE_STEP = 0
     AFTER_STEP = 1
     BEFORE_EPOCH = 2
@@ -34,6 +35,12 @@ class AbstractEpochHandler(AbstractHandler):
     
     def __init__(self):
         super().__init__(HandlerType.AFTER_EPOCH)
+
+
+class AbstractStartHandler(AbstractHandler):
+
+    def __init__(self):
+        super().__init__(HandlerType.BEFORE_TRAIN)
 
 
 class AbstractFinishHandler(AbstractHandler):

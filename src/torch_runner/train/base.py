@@ -101,3 +101,7 @@ class AbstractTrainer(ABC):
     @abstractmethod
     def train_step(self, data) -> Dict:
         pass
+
+    @abstractmethod
+    def check_ready(self) -> bool:
+        pass

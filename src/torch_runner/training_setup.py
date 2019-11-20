@@ -1,26 +1,14 @@
+import os
 import sys
 from typing import Tuple, Any, Type
+import shutil
 
 import torch
 from config_parser.config_parser import ConfigGenerator
 
-from torch_runner.train.train import AbstractTrainer
-from torch_runner.util.torch_utils import get_optimizer_from_str
+from torch_runner.train.base import AbstractTrainer
 from torch_runner.data.base import BasicDataSet
-
-
-def setup_config(file_location: str, argv) -> Tuple[Any, ConfigGenerator]:
-    config = ConfigGenerator(file_location)
-    return config(argv), config
-
-
-def load_and_check_experiment_config(config):
-    try:
-        experiment_config = config.experiment_config
-    except AttributeError as e:
-        print('Config does not specify experiment setup')
-        sys.exit(1)
-    return experiment_config
+from torch_runner.util.torch_utils import get_optimizer_from_str
 
 
 def setup_trainer(trainer_class: Type[AbstractTrainer], model: torch.nn.Module, training_config):
@@ -39,3 +27,5 @@ def setup_train_dataloader(trainer, dataset: BasicDataSet):
 def setup_test_dataloader(trainer, dataset: BasicDataSet):
     dataloader = torch.utils.data.dataloader.DataLoader(dataset)
     trainer.register_test_dataloader(dataloader)
+
+
