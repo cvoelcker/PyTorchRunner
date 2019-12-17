@@ -42,6 +42,7 @@ def clean_experiment_directory(config):
 
 
 def load_config_from_file(run_path: str, run_number: str):
+    print(f'Loading run number {run_number} for {run_path}')
     config_file = os.path.join(run_path, 'config.yml')
     config_object = ConfigGenerator(config_file)
     config = config_object(['--run-number', str(run_number)])

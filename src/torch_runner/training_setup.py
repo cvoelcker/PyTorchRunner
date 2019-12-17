@@ -20,19 +20,26 @@ def setup_trainer(trainer_class: Type[AbstractTrainer], model: torch.nn.Module, 
         trainer.register_optimizer(optimizer, training_config.optimizer.lr, **training_config.optimizer.attributes._asdict())
     else:
         trainer.register_optimizer(optimizer, training_config.optimizer.lr)
+    if hasattr(training_config, 'decay_rate'):
+        trainer.register_scheduler(training_config.decay_rate, training_config.decay_schedule)
+    if training_config.clip_gradient:
+        trainer.clip_gradient = True
+        trainer.clip_gradient_value = training_config.clip_gradient_value
+    else:
+        trainer.clip_gradient = False
     setup_train_dataloader(trainer, train_data, training_config)
     if test_data is not None:
         setup_test_dataloader(trainer, test_data, training_config)
     return trainer
 
 
-def setup_train_dataloader(trainer, dataset: BasicDataSet, config):
-    dataloader = torch.utils.data.dataloader.DataLoader(dataset, batch_size=config.batch_size)
+def setup_train_dataloader(trainer, dataset: BasicDataSet, config, shuffle: bool=True):
+    dataloader = torch.utils.data.dataloader.DataLoader(dataset, batch_size=config.batch_size, shuffle=shuffle)
     trainer.add_train_dataloader(dataloader)
 
 
-def setup_test_dataloader(trainer, dataset: BasicDataSet, config):
-    dataloader = torch.utils.data.dataloader.DataLoader(dataset, batch_size=config.batch_size)
+def setup_test_dataloader(trainer, dataset: BasicDataSet, config, shuffle: bool=True):
+    dataloader = torch.utils.data.dataloader.DataLoader(dataset, batch_size=config.batch_size, shuffle=shuffle)
     trainer.add_test_dataloader(dataloader)
 
 

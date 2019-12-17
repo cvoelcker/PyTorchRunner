@@ -16,7 +16,7 @@ class TorchVisionTransformerComposition(DataTransformation):
 
     possible_transforms = {
             'crop': lambda shape: transforms.Lambda(lambda x: transforms.functional.crop(x, *shape)),
-            'reshape': lambda shape: transforms.Resize(*shape[-3:-2]),
+            'reshape': lambda shape: transforms.Resize(shape[-3:-1]),
             'float': lambda _: transforms.Lambda(lambda x: x.float()),
             'torch': lambda _: transforms.ToTensor(),
             'normalize': lambda _: transforms.Lambda(lambda x: x/255.)
@@ -41,7 +41,9 @@ class TorchVisionTransformerComposition(DataTransformation):
         data = data.astype('uint8')
         img = Image.fromarray(data)
         if self.transform is not None:
+            # print(self.transform)
             img = self.transforms(img)
+            # print(img.shape)
         return img
 
 

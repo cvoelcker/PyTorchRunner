@@ -3,26 +3,14 @@ import gzip #type: ignore
 import dill #type: ignore
 import pickle
 from typing import Iterable, Callable, TypeVar, Generic
-
 from abc import ABC, abstractmethod
 
 import numpy as np #type: ignore
 
-
-LoadedData = TypeVar('LoadedData')
-ProvidedData = TypeVar('ProvidedData')
-
-class DataSource(ABC):
-
-    def __init__(self, **kwargs):
-        pass
-
-    @abstractmethod
-    def get_dataset(self):
-        pass
+from .base import DataSource, LoadedData, ProvidedData
 
 
-class DirectoryLoader(DataSource, Generic[LoadedData, ProvidedData]):
+class DirectoryLoader(DataSource):
     def __init__(self, directory: str = '', 
             compression_type: str = 'pickle', 
             preprocess_function: Callable[[LoadedData], LoadedData] = lambda x: x,
@@ -39,16 +27,16 @@ class DirectoryLoader(DataSource, Generic[LoadedData, ProvidedData]):
             imgpath = os.path.join(self.directory, imgfile)
             if self.compression_type == 'gzip':
                 with gzip.open(imgpath, 'rb') as f:
-                    img = self.preprocessing_function(dill.load(f))
+                    img = self.preprocess_function(dill.load(f))
                 dataset.append(img)
             elif self.compression_type == 'pickle':
                 with open(imgpath, 'rb') as f:
                     img = self.preprocess_function(pickle.load(f))
                 dataset.append(img)
-        return np.array(dataset).squeeze()
+        return np.concatenate(dataset, 0)
 
 
-class FileLoader(DataSource, Generic[LoadedData]):
+class FileLoader(DataSource):
     def __init__(self, file_name: str = '', 
             compression_type: str = 'pickle', 
             preprocess_function: Callable[[LoadedData], LoadedData] = lambda x: x,
@@ -65,4 +53,3 @@ class FileLoader(DataSource, Generic[LoadedData]):
             with open(self.file_name, 'rb') as f:
                 dataset = self.preprocess_function(pickle.load(f))
         return dataset
-

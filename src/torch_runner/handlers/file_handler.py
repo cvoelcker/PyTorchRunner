@@ -23,7 +23,7 @@ class FileHandler(AbstractHandler):
     @staticmethod
     def setup_compression(method):
         if method == 'pickle':
-            return lambda data, file_name: wrap_file_open(data, file_name, pickle.dump)
+            return lambda data, file_name: wrap_file_open(data.detach().cpu(), file_name, pickle.dump)
         if method == 'torch':
             return torch.save
     
@@ -50,7 +50,7 @@ class FileHandler(AbstractHandler):
         for key in data:
             if (self.log_name_list is not None) and (key not in self.log_name_list):
                 continue
-            full_path = os.path.join(self.log_dir, f'{key}_{self.step}.save')
+            full_path = os.path.join(self.log_dir, '{}_{:07d}.save'.format(key, self.step))
             self.saving(data[key], full_path)
 
 
@@ -74,3 +74,6 @@ class EpochCheckpointHandler(ModelSavingHandler, AbstractEpochHandler): pass
 
 
 class EpochFileHandler(FileHandler, AbstractEpochHandler): pass
+
+
+class StepFileHandler(FileHandler, AbstractStepHandler): pass
