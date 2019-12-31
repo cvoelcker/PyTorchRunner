@@ -48,8 +48,8 @@ class BasicDataSet(Dataset):
         return datum
     
     def get_all(self):
-        for idx in range(self.__len__()):
-            yield self.__getitem__(idx)
+        for datum in self:
+            yield datum
 
 
 class SequenceDataSet(Dataset):
@@ -72,8 +72,8 @@ class SequenceDataSet(Dataset):
         return (self.dataset.shape[1] - self.sequence_len) * self.dataset.shape[0]
 
     def __getitem__(self, idx: int) -> Union[np.ndarray, torch.Tensor]:
-        seq = idx//self.dataset.shape[0]
-        idx = idx%(self.dataset.shape[1] - self.sequence_len)
+        seq = idx //(self.dataset.shape[1] - self.sequence_len)
+        idx = idx % (self.dataset.shape[1] - self.sequence_len)
         datum = self.dataset[seq, idx:idx+self.sequence_len]
         imgs = []
         for img in datum:
@@ -110,11 +110,12 @@ class SequenceDictDataSet(Dataset):
             yield self[i]
 
     def __len__(self):
-        return (self.dataset['X'].shape[1] - self.sequence_len) * self.dataset['X'].shape[0]
+        l = (self.dataset['X'].shape[1] - self.sequence_len) * self.dataset['X'].shape[0]
+        return l
 
     def __getitem__(self, idx: int) -> Union[np.ndarray, torch.Tensor]:
-        seq = idx//self.dataset['X'].shape[0]
-        idx = idx%(self.dataset['X'].shape[1] - self.sequence_len)
+        seq = idx //(self.dataset['X'].shape[1] - self.sequence_len)
+        idx = idx % (self.dataset['X'].shape[1] - self.sequence_len)
         datum = {}
         for k in self.dataset:
             if 'X' == k:
@@ -131,6 +132,6 @@ class SequenceDictDataSet(Dataset):
         return datum
 
     def get_all(self):
-        for idx in range(self.__len__()):
-            for item in self.__getitem__(idx)['X']:
+        for seq in self:
+            for item in seq['X']:
                 yield item

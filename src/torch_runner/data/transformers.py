@@ -29,7 +29,6 @@ class TorchVisionTransformerComposition(DataTransformation):
             try:
                 transforms_list.append(TorchVisionTransformerComposition.possible_transforms[t](shape))
             except KeyError as e:
-                print(f'Transformation {t} not available!')
                 raise NotImplementedError(f'Transformation {t} not available')
         return transforms.Compose(transforms_list)
         
@@ -37,10 +36,8 @@ class TorchVisionTransformerComposition(DataTransformation):
         self.transforms = TorchVisionTransformerComposition.unpack(transform_list, shape)
     
     def transform(self, data: Dict[str, Any]):
-        data = data * 255./data.max()
-        data = data.astype('uint8')
         img = Image.fromarray(data)
-        if self.transform is not None:
+        if self.transforms is not None:
             # print(self.transform)
             img = self.transforms(img)
             # print(img.shape)
