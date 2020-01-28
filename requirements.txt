@@ -4,7 +4,7 @@ numpy
 pandas
 scipy
 matplotlib
-tensorflow==1.14
+tensorflow==1.15.2
 tensorboardX
 PyConfigMaker
 pillow
